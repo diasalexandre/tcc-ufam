@@ -1,36 +1,40 @@
 #!/usr/bin/env python
 
-file = open("alunos_jan.txt", "r");
-lista = {};
+import codecs
+file = codecs.open('./base/alunos_jan.txt', encoding='utf-8')
+
+#file = open("./base/alunos_jan.txt", "r");
+list = { };
 cont = 0;
+listAdmission = { };
+
+dictStatus = { 'Sem Evaso': 'semevasao', 'Desistente': 'desistente', 'Cancelamento Cota': 'cancelamento', 'Formado': 'formado', 'Jubilado (Crit. 01)': 'jubilado 01', 'Jubilado (Crit. 02)': 'jubilado 02', 'Transferido': 'transferido', 'Excludo': 'excluido' };
+
 for line in file: 
-	separate = line.split("\t");
-	year = separate[10].split("/");
-	evasao = separate[12].split("/");
+	separateFields = line.split("\t");
 
-	listIngresso = { };
+	year = separateFields[10].split("/");
+	evasao = separateFields[12].split("/");
 
+	reason = separateFields[5].encode('ascii','ignore');
 
 	if len(year) > 1:
-		ingresso = str(year[0].strip()) + "," + str(year[1].strip());
-		#print "%s" % ingresso
+		year[0] = year[0].encode('ascii','ignore');
+		year[1] = year[1].encode('ascii','ignore');
 
-		if (ingresso in listIngresso):
-			listIngresso[ingresso] = listIngresso[ingresso] + 1;
+		year[1] = str(year[1].strip().replace(" ", "+").replace("", "").lower());
+
+		admission = str(year[0].strip()) + "," + str(year[1].strip());
+
+		if (admission in listAdmission):
+			listAdmission[admission]['ingressantes'] = listAdmission[admission]['ingressantes'] + 1;
 		else:
-			listIngresso[ingresso] = 0;
+			listAdmission[admission] = { 'ingressantes'  : 1, 'semevasao' : 0, 'desistente' : 0, 'cancelamento' : 0, 'formado' : 0, 'jubilado 01' : 0, 'jubilado 02' : 0, 'transferido' : 0 , 'excluido' : 0 };
 
-	#yearString = year[0] + year[1];
-	
+		if (reason in dictStatus) :
+			listAdmission[admission][dictStatus[reason]] = listAdmission[admission][dictStatus[reason]] + 1;
+		
 
-for ingresso in listIngresso: 
-	print "%s" % (ingresso);
-
-	#if len(year) > 1:
-		#print str(year[0].strip()) + str(year[1].strip());
-		#print "%s : %s" % (year[0], year[1]);
-	
-#	for ano in year: 
-#		print "%s" % ano.strip();
-
-	
+for admission in listAdmission: 
+	print "%s : %s" % (admission, listAdmission[admission]);	
+	#print "Relação Ingresso/Formado:  %f" % listAdmission[admission]  (admission, listAdmission[admission]);
